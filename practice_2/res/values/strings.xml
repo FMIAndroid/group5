@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">lesson2</string>
+    <string name="title_activity_main">Lesson 2</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_second">Example</string>
+
+</resources>
