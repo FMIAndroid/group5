@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Practice3</string>
+    <string name="title_activity_main">Practice 3</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="first_last_name">First Last name</string>
+    <string name="email">Email</string>
+    <string name="title_activity_details">User details</string>
+
+</resources>
