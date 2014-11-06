@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Practice 5</string>
+    <string name="title_activity_login">Login</string>
+    <string name="title_activity_messages">Messages</string>
+
+</resources>
