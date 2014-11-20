@@ -8,6 +8,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -24,8 +25,10 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.TextView;
 
 public class ChatRoomActivity extends Activity {
@@ -33,7 +36,7 @@ public class ChatRoomActivity extends Activity {
 	public static int LOGIN_REQUEST = 666;
 
 	private SharedPreferences mPreferences;
-	private TextView mChat;
+	private ListView mChat;
 
 	private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
 
@@ -42,11 +45,11 @@ public class ChatRoomActivity extends Activity {
 			if (intent != null && intent.getAction().contentEquals("edu.fmi.android.chat.action.SEND")) {
 				final String nickname = intent.getStringExtra("nickname");
 				final String msg = intent.getStringExtra("msg");
-				final String append = nickname + ": " + msg + "\n";
+				final String append = nickname + ": " + msg;
 
 				mWriter.append(append);
-				mChat.append(append);
-
+				((ArrayAdapter<String>)mChat.getAdapter()).add(append);
+				((ArrayAdapter<String>)mChat.getAdapter()).notifyDataSetChanged();
 				mWriter.flush();
 			}
 		}
@@ -62,7 +65,7 @@ public class ChatRoomActivity extends Activity {
 		setContentView(R.layout.activity_chat_room);
 
 		mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-		mChat = (TextView) findViewById(R.id.chat);
+		mChat = (ListView) findViewById(R.id.chat);
 
 		final String nickname = mPreferences.getString("nickname", "Guest");
 		String chatroom = mPreferences.getString("chatroom", null);
@@ -88,12 +91,16 @@ public class ChatRoomActivity extends Activity {
 				mWriter = new PrintWriter(mHistory);
 				mReader = new BufferedReader(new FileReader(history));
 
+				ArrayList<String> historyList = new ArrayList<String>();
 				String line;
+				
 				while ((line = mReader.readLine()) != null) {
 					System.out.println(line);
-					mChat.append(line);
-					mChat.append("\n");
+					historyList.add(line);
 				}
+				
+				ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, historyList);
+				mChat.setAdapter(adapter);
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			} catch (IOException e) {
@@ -118,10 +125,11 @@ public class ChatRoomActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				if (!TextUtils.isEmpty(mMsgField.getText().toString())) {
-					final String msg = nickname + ": " + mMsgField.getText().toString() + "\n";
+					final String msg = nickname + ": " + mMsgField.getText().toString();
 
 					mWriter.append(msg);
-					mChat.append(msg);
+					((ArrayAdapter<String>)mChat.getAdapter()).add(msg);
+					((ArrayAdapter<String>)mChat.getAdapter()).notifyDataSetChanged();
 
 					mWriter.flush();
 					sendBroadcast(new Intent("edu.fmi.android.chat.action.SEND"));
@@ -134,8 +142,6 @@ public class ChatRoomActivity extends Activity {
 	protected void onStart() {
 		super.onStart();
 		LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver, new IntentFilter("edu.fmi.android.chat.action.SEND"));
-
-		//sendBroadcast(new Intent("edu.fmi.android.chat.action.SEND"));
 	}
 
 	@Override
