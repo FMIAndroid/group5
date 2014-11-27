@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+    
+    <android.support.v4.widget.SlidingPaneLayout
+        android:layout_width="match_parent"
+        android:id="@+id/panes"
+        android:layout_height="match_parent">
+
+        <FrameLayout
+            android:id="@+id/chatrooms"
+            android:layout_width="200dp"
+            android:layout_height="match_parent" />
+ 
+        <FrameLayout
+            android:id="@+id/pane2"
+            android:layout_width="400dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"/>
+        
+    </android.support.v4.widget.SlidingPaneLayout>
+
+</LinearLayout>
