@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -22,21 +23,44 @@ public class ChatRoomActivity extends Activity implements OnFragmentInteractionL
 	
 	private SlidingPaneLayout mPanes;
 
+	private int mOrientation;
+
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB) @Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_container);
-
-		mPanes = (SlidingPaneLayout) findViewById(R.id.panes);
-
-		mPanes.openPane();
 		
+		mOrientation = getResources().getConfiguration().orientation;
 		mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 		
-		getFragmentManager()
-		.beginTransaction()
-		.add(R.id.chatrooms, ChatRoomFragment.newInstance("general", "news"), "chatrooms")
-		.commit();
+		if (mOrientation == 1) {
+			getFragmentManager()
+			.beginTransaction()
+			.replace(R.id.chatrooms, ChatRoomFragment.newInstance("general", "news"))
+			.commit();
+		} else {
+			mPanes = (SlidingPaneLayout) findViewById(R.id.panes);
+
+			mPanes.openPane();
+			
+			getFragmentManager()
+			.beginTransaction()
+			.add(R.id.chatrooms, ChatRoomFragment.newInstance("general", "news"), "chatrooms")
+			.commit();
+		}
+	}
+	
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+		
+		mOrientation = newConfig.orientation;
+		
+		if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+			
+		} else {
+			
+		}
 	}
 	
 	
@@ -56,8 +80,13 @@ public class ChatRoomActivity extends Activity implements OnFragmentInteractionL
 	public void onFragmentInteraction(String item) {	
 		Fragment selected = ChatFragment.newInstance(item, null);
 		((ChatRoomFragment) getFragmentManager().findFragmentById(R.id.chatrooms)).addIfNotExist(item);
-		getFragmentManager().beginTransaction().replace(R.id.pane2, selected, "chat").commit();
-		mPanes.closePane();
+		
+		if (mOrientation == 1) {
+			getFragmentManager().beginTransaction().replace(R.id.chatrooms, selected).addToBackStack(null).commit();
+		} else {
+			getFragmentManager().beginTransaction().replace(R.id.pane2, selected, "chat").commit();
+			mPanes.closePane();
+		}
 	}
 	
 	@Override
