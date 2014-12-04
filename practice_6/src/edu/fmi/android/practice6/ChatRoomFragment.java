@@ -1,5 +1,7 @@
 package edu.fmi.android.practice6;
 
+import java.util.ArrayList;
+
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.ListFragment;
@@ -66,15 +68,25 @@ public class ChatRoomFragment extends ListFragment {
 		}
 	}
 
+	public void addIfNotExist(String name) {
+		boolean founded = false;
+
+		for (int el = 0; el < getListAdapter().getCount(); el++) {
+			if (((String) getListAdapter().getItem(el)).contentEquals(name)) {
+				founded = true;
+			}
+		}
+		if (!founded) {
+			((ArrayAdapter<String>) getListAdapter()).add(name);
+			((ArrayAdapter<String>) getListAdapter()).notifyDataSetChanged();
+		}
+	}
+
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
-		ArrayAdapter<String> adapter = new ArrayAdapter<String>(
-				getActivity(), 
-				android.R.layout.simple_list_item_1, 
-				new String[]{mParam1, mParam2});
-		setListAdapter(adapter);
+		setListAdapter(new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1));
 		setListShown(true);
 		getListView().setOnItemClickListener(new OnItemClickListener() {
 
@@ -83,9 +95,11 @@ public class ChatRoomFragment extends ListFragment {
 					int position, long id) {
 				view.setSelected(true);
 				mListener.onFragmentInteraction((String) getListAdapter().getItem(position));
-				System.out.println(100 / 0);
 			}
 		});
+
+		addIfNotExist(mParam1);
+		addIfNotExist(mParam2);
 	}
 
 	@Override

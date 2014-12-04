@@ -11,9 +11,19 @@ public class BotMessageReceiver extends BroadcastReceiver {
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
+		final String chatroom;
+		
+		if (intent != null && intent.hasExtra("chatroom")) {
+			chatroom = intent.getStringExtra("chatroom");
+		} else {
+			chatroom = null;
+		}
+		
+		
 		Intent send = new Intent("edu.fmi.android.chat.action.SEND");
 		send.putExtra("nickname", "Botyo");
 		send.putExtra("msg", "Hello World!");
+		send.putExtra("chatroom", chatroom);
 		
 		LocalBroadcastManager.getInstance(context).sendBroadcast(send);
 	}

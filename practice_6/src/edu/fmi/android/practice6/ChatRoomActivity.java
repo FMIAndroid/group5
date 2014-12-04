@@ -4,8 +4,11 @@ import edu.fmi.android.practice6.ChatRoomFragment.OnFragmentInteractionListener;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.widget.SlidingPaneLayout;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +16,10 @@ import android.view.ViewGroup;
 
 public class ChatRoomActivity extends Activity implements OnFragmentInteractionListener {
 
+	public static int LOGIN_REQUEST = 666;
+	
+	private SharedPreferences mPreferences;
+	
 	private SlidingPaneLayout mPanes;
 
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB) @Override
@@ -23,25 +30,52 @@ public class ChatRoomActivity extends Activity implements OnFragmentInteractionL
 		mPanes = (SlidingPaneLayout) findViewById(R.id.panes);
 
 		mPanes.openPane();
-
-		Fragment chat = ChatFragment.newInstance(null, null);
-
+		
+		mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+		
 		getFragmentManager()
 		.beginTransaction()
-		.add(R.id.chatrooms, ChatRoomFragment.newInstance("elsys", "unss"), "chatrooms")
-		.add(R.id.pane2, chat, "chat")
+		.add(R.id.chatrooms, ChatRoomFragment.newInstance("general", "news"), "chatrooms")
 		.commit();
+	}
+	
+	
+	@Override
+	protected void onStart() {
+		super.onStart();
+		
+		if (!mPreferences.contains("chatroom")) {
+			Intent login = new Intent(this, LoginActivity.class);
+			startActivityForResult(login, LOGIN_REQUEST);
+		} else {
+			onFragmentInteraction(mPreferences.getString("chatroom", "default"));
+		}
 	}
 
 	@Override
-	public void onFragmentInteraction(String item) {
-		
-		"unss".equals(item);
-		item.equals("unss");
-		
-		Fragment selected = "unss".equals(item) ? ChatFragment.newInstance(item, null) : new DummyFragment();
+	public void onFragmentInteraction(String item) {	
+		Fragment selected = ChatFragment.newInstance(item, null);
+		((ChatRoomFragment) getFragmentManager().findFragmentById(R.id.chatrooms)).addIfNotExist(item);
 		getFragmentManager().beginTransaction().replace(R.id.pane2, selected, "chat").commit();
 		mPanes.closePane();
+	}
+	
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+
+		if (requestCode == LOGIN_REQUEST) {
+			if (resultCode == Activity.RESULT_OK) {
+				// TODO
+				mPreferences.edit().putString("nickname", data.getStringExtra("name")).commit();
+				mPreferences.edit().putString("chatroom", data.getStringExtra("chatroom")).commit();
+
+				getActionBar().setSubtitle(data.getStringExtra("name") + " @ " + data.getStringExtra("chatroom"));
+				onFragmentInteraction(data.getStringExtra("chatroom"));
+			} else {
+				finish();
+			}
+		}
 	}
 	
 	public static class DummyFragment extends Fragment {
